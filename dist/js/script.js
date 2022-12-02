@@ -64,9 +64,6 @@
       thisProduct.initAccordion();
       thisProduct.initOrderForm();
       thisProduct.processOrder();
-
-
-      console.log('new Product: ', thisProduct);
     }
     
     renderInMentu() {
@@ -151,7 +148,6 @@
         thisProduct.processOrder();
       });
 
-      console.log('initOrderForm: ', thisProduct);
     }
 
     processOrder() {
@@ -159,7 +155,6 @@
     
       // covert form to object structure e.g. { sauce: ['tomato'], toppings: ['olives', 'redPeppers']}
       const formData = utils.serializeFormToObject(thisProduct.form);
-      console.log('formData', formData);
     
       // set price to default price
       let price = thisProduct.data.price;
@@ -176,25 +171,19 @@
           const image = thisProduct.imageWrapper.querySelector('.' + paramId + '-' + optionId);
           const optionSelected = formData[paramId] && formData[paramId].includes(optionId);
           if(image){
-            if(option['default'] == null){
-              image.classList.remove(classNames.menuProduct.imageVisible);
-            } else if (option['default'] == true) {
+            if(optionSelected){
               image.classList.add(classNames.menuProduct.imageVisible);
+            } else {
+              image.classList.remove(classNames.menuProduct.imageVisible);
             }
           }
-
+          
           if(optionSelected){
            
-            if(option['default'] == null){
-              price += option['price'];
-              image.classList.add(classNames.menuProduct.imageVisible);
+            if(!option.default){
+              price += option.price;
             }
-          } else {
-            if(option['default'] == true){
-              price -= option['price'];
-              image.classList.remove(classNames.menuProduct.imageVisible);
-            }
-          }
+          } else if(option.default) { price -= option.price; }
         }
       }
     
@@ -207,8 +196,6 @@
   const app = {
     initMenu: function(){
       const thisApp = this;
-
-      console.log('thisApp.data: ', thisApp.data);
 
       for(let productData in thisApp.data.products){
         new Product(productData, thisApp.data.products[productData]);
