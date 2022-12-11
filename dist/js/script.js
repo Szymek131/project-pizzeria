@@ -498,8 +498,8 @@
         products: []
       };
 
-      for(let prod of thisCart.products) {
-        payload.products.push(prod.getData());
+      for(let product of thisCart.products) {
+        payload.products.push(product.getData());
       }
 
       const options = {
