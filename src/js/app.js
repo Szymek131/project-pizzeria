@@ -58,11 +58,21 @@ const app = {
       new Product(thisApp.data.products[productData].id, thisApp.data.products[productData]);
     }
   },
+
+  initBooking: function(){
+    const thisApp = this;
+    console.log('thisApp: ', thisApp);
+
+    thisApp.reservationWidget = document.querySelector(select.containerOf.booking);
+    thisApp.booking = new Booking(thisApp.reservationWidget);
+  },
     
   initData: function(){
     const thisApp = this;
-    const url = settings.db.url + '/' + settings.db.products;
+
     thisApp.data = {};
+
+    const url = settings.db.url + '/' + settings.db.products;
 
     fetch(url)
       .then(function(rawResponse){
@@ -88,13 +98,6 @@ const app = {
     });
   },
 
-  initBooking: function(){
-    const thisApp = this;
-    console.log('thisApp: ', thisApp);
-
-    const reservationWidget = document.querySelector(select.containerOf.booking);
-    new Booking(reservationWidget);
-  },
     
   init: function(){
     const thisApp = this;

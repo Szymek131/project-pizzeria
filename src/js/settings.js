@@ -92,26 +92,11 @@ export const classNames = {
 export const settings = {
   amountWidget: {
     defaultValue: 1,
-    defaultMin: 0,
-    defaultMax: 10,
-  }, // CODE CHANGED
-  // CODE ADDED START
+    defaultMin: 1,
+    defaultMax: 9,
+  }, 
   cart: {
     defaultDeliveryFee: 20,
-  },
-  // CODE ADDED END
-  db: {
-    url: '//localhost:3131',
-    products: 'products',
-    orders: 'orders',
-    product: 'product',
-    order: 'order',
-    booking: 'booking',
-    event: 'event',
-    dateStartParamKey: 'date_gte',
-    dateEndParamKey: 'date_lte',
-    notRepeatParam: 'repeat=false',
-    repeatParam: 'repeat_ne=false',
   },
   hours: {
     open: 12,
@@ -121,7 +106,18 @@ export const settings = {
     maxDaysInFuture: 14,
   },
   booking: {
-    tableIdAttribute: 'date-table',
+    tableIdAttribute: 'data-table',
+  },
+  db: {
+    url: '//localhost:3131',
+    products: 'products',
+    orders: 'orders',
+    bookings: 'bookings',
+    events: 'events',
+    dateStartParamKey: 'date_gte',
+    dateEndParamKey: 'date_lte',
+    notRepeatParam: 'repeat=false',
+    repeatParam: 'repeat_ne=false',
   },
 };
 
