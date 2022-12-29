@@ -208,7 +208,7 @@
    "events": [
      {
        "id": 1,
-       "date": "2021-01-01",
+       "date": "2022-12-29",
        "hour": "12:30",
        "table": 1,
        "repeat": false,
@@ -260,7 +260,7 @@
    "bookings": [
       {
          "id": 1,
-         "date": "2022-12-22",
+         "date": "2022-12-27",
          "hour": "16:30",
          "table": 1,
          "duration": 4,
