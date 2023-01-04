@@ -180,20 +180,24 @@ class Booking{
   initTables(event){
     const thisBooking = this;
     const table = event.target;
-    const tableNr = table.getAttribute(settings.booking.tableIdAttribute);
-    if(table.classList.contains(classNames.booking.table) && !table.classList.contains(classNames.booking.tableBooked)){
+    const tableNumer = table.getAttribute(settings.booking.tableIdAttribute);
 
-      if(!table.classList.contains(classNames.booking.tableSelected)){
-        thisBooking.updateDOM();
-        table.classList.add(classNames.booking.tableSelected);
-        thisBooking.selectedTable = tableNr;
-        console.log('selected table:', thisBooking.selectedTable);
-      } else {
+    if(table.classList.contains(classNames.booking.table) && table.classList.contains(classNames.booking.tableBooked)){
+      alert('this table is already booked !!!');
+      return;
+
+    } else {
+
+      if(table.classList.contains(classNames.booking.tableSelected)){
         table.classList.remove(classNames.booking.tableSelected);
         thisBooking.updateDOM();
+
+      } else {
+        thisBooking.updateDOM();
+        table.classList.add(classNames.booking.tableSelected);
+        thisBooking.selectedTable = parseInt(tableNumer);
+        console.log('selected table:', thisBooking.selectedTable);
       }
-    } else if(table.classList.contains(classNames.booking.tableBooked)){
-      console.log('this table is already booked !!!');
     }
   }
 
@@ -233,6 +237,8 @@ class Booking{
         return response.json();
       }).then(function(parsedResponse){
         console.log('parsedResponse', parsedResponse);
+        alert('Thank you for reserving this table !!');
+        thisBooking.makeBooked(parsedResponse.date, parsedResponse.hour, parsedResponse.hours, parsedResponse.table);
         thisBooking.updateDOM();
       });
   }
