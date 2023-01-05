@@ -1,0 +1,90 @@
+#pages {
+  > * {
+    display: none;
+  }
+
+  > .active {
+    display: block;
+  }
+}
+
+/*page Links*/
+
+.page-container {
+
+  
+  .page-wrapper{
+    padding: 10px;
+    margin-top: 36px;
+    background-color: white;
+
+    .pages-links-wrapper{
+      display: flex;
+      align-items: center;
+
+
+      .page-link-column-1{
+        flex: 50%;
+        background-image: url(../../images/homePage/pizza-1.jpg);
+        padding: 40px;
+        margin-right: 5px;
+        text-align: center;
+        width: 300px;
+
+          .page-link-label{
+            color: white;
+            transition: 1.2s;
+
+            &:hover{
+              transform: translate(0%, -25%);
+            }
+          }
+      }
+
+      .page-link-column-2{
+        flex: 50%;
+        background-image: url(../../images/homePage/pizza-2.jpg);
+        padding: 40px;
+        margin-left: 5px;
+        text-align: center;
+          
+        .page-link-label{
+            color: $color-light;
+            transition: 1.2s;
+
+            &:hover{
+              transform: translate(0%, -25%);
+            }
+          }
+      }
+    }
+
+    .opening-hours-row{
+      background-color: $color-main;
+      margin-top: 10px;
+
+      .opening-label{
+        padding: 30px;
+        text-align: center;
+        color: $color-light;
+      }
+    }
+
+    .main-carousel{
+      .carousel-cell{
+        margin-right: 40px;
+        display: flex;
+        flex-direction: row;
+        .carousel-image-card{
+          flex:50%;
+          .carousel-image{
+            width: 100%;
+          }
+        }
+        .carousel-text{
+          flex:50%;
+        }
+      }
+    }
+  }
+}
