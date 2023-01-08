@@ -13,7 +13,8 @@ export const select = {
     tables: '.floor-plan',
     bookTableBtn: '.btn-secondary',
     homePage: '.home-wrapper',
-    carousel: '.home-carousel-wrapper',
+    carousel: '.main-carousel',
+    home: '.pages-links-wrapper',
   },
   all: {
     menuProducts: '#product-list > .product',

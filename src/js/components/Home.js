@@ -9,27 +9,22 @@ class Home{
     thisHome.carousel();
   }
 
-  render(element){
+  render(){
     const thisHome = this;
 
     const generatedHTML = templates.home();
     thisHome.element = utils.createDOMFromHTML(generatedHTML);
     const bookingWrapper = document.querySelector(select.containerOf.homePage);
     bookingWrapper.appendChild(thisHome.element).innerHTML;
-
-    thisHome.dom = {
-      wrapper: element,
-
-    };
   }
 
   carousel(){
-    const thisHome = this;
-
-    const carouselWrapper = document.querySelector(select.containerOf.carousel);
-    const flkty = new Flickity(select.containerOf.carousel, {
+    // eslint-disable-next-line no-undef
+    new Flickity(select.containerOf.carousel, {
       imagesLoaded: true,
       percentPosition: false,
+      autoPlay: true,
+      prevNextButtons: false,
     });
   }
 }

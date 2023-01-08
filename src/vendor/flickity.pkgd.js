@@ -40,116 +40,116 @@
   }
 
 }( window, function factory( window, jQuery ) {
-'use strict';
+  'use strict';
 
-// ----- utils ----- //
+  // ----- utils ----- //
 
-var arraySlice = Array.prototype.slice;
+  var arraySlice = Array.prototype.slice;
 
-// helper function for logging errors
-// $.error breaks jQuery chaining
-var console = window.console;
-var logError = typeof console == 'undefined' ? function() {} :
-  function( message ) {
-    console.error( message );
-  };
-
-// ----- jQueryBridget ----- //
-
-function jQueryBridget( namespace, PluginClass, $ ) {
-  $ = $ || jQuery || window.jQuery;
-  if ( !$ ) {
-    return;
-  }
-
-  // add option method -> $().plugin('option', {...})
-  if ( !PluginClass.prototype.option ) {
-    // option setter
-    PluginClass.prototype.option = function( opts ) {
-      // bail out if not an object
-      if ( !$.isPlainObject( opts ) ){
-        return;
-      }
-      this.options = $.extend( true, this.options, opts );
+  // helper function for logging errors
+  // $.error breaks jQuery chaining
+  var console = window.console;
+  var logError = typeof console == 'undefined' ? function() {} :
+    function( message ) {
+      console.error( message );
     };
-  }
 
-  // make jQuery plugin
-  $.fn[ namespace ] = function( arg0 /*, arg1 */ ) {
-    if ( typeof arg0 == 'string' ) {
-      // method call $().plugin( 'methodName', { options } )
-      // shift arguments by 1
-      var args = arraySlice.call( arguments, 1 );
-      return methodCall( this, arg0, args );
+  // ----- jQueryBridget ----- //
+
+  function jQueryBridget( namespace, PluginClass, $ ) {
+    $ = $ || jQuery || window.jQuery;
+    if ( !$ ) {
+      return;
     }
-    // just $().plugin({ options })
-    plainCall( this, arg0 );
-    return this;
-  };
 
-  // $().plugin('methodName')
-  function methodCall( $elems, methodName, args ) {
-    var returnValue;
-    var pluginMethodStr = '$().' + namespace + '("' + methodName + '")';
+    // add option method -> $().plugin('option', {...})
+    if ( !PluginClass.prototype.option ) {
+      // option setter
+      PluginClass.prototype.option = function( opts ) {
+        // bail out if not an object
+        if ( !$.isPlainObject( opts ) ){
+          return;
+        }
+        this.options = $.extend( true, this.options, opts );
+      };
+    }
 
-    $elems.each( function( i, elem ) {
-      // get instance
-      var instance = $.data( elem, namespace );
-      if ( !instance ) {
-        logError( namespace + ' not initialized. Cannot call methods, i.e. ' +
-          pluginMethodStr );
-        return;
+    // make jQuery plugin
+    $.fn[ namespace ] = function( arg0 /*, arg1 */ ) {
+      if ( typeof arg0 == 'string' ) {
+        // method call $().plugin( 'methodName', { options } )
+        // shift arguments by 1
+        var args = arraySlice.call( arguments, 1 );
+        return methodCall( this, arg0, args );
       }
+      // just $().plugin({ options })
+      plainCall( this, arg0 );
+      return this;
+    };
 
-      var method = instance[ methodName ];
-      if ( !method || methodName.charAt(0) == '_' ) {
-        logError( pluginMethodStr + ' is not a valid method' );
-        return;
-      }
+    // $().plugin('methodName')
+    function methodCall( $elems, methodName, args ) {
+      var returnValue;
+      var pluginMethodStr = '$().' + namespace + '("' + methodName + '")';
 
-      // apply method, get return value
-      var value = method.apply( instance, args );
-      // set return value if value is returned, use only first value
-      returnValue = returnValue === undefined ? value : returnValue;
-    });
+      $elems.each( function( i, elem ) {
+        // get instance
+        var instance = $.data( elem, namespace );
+        if ( !instance ) {
+          logError( namespace + ' not initialized. Cannot call methods, i.e. ' +
+            pluginMethodStr );
+          return;
+        }
 
-    return returnValue !== undefined ? returnValue : $elems;
+        var method = instance[ methodName ];
+        if ( !method || methodName.charAt(0) == '_' ) {
+          logError( pluginMethodStr + ' is not a valid method' );
+          return;
+        }
+
+        // apply method, get return value
+        var value = method.apply( instance, args );
+        // set return value if value is returned, use only first value
+        returnValue = returnValue === undefined ? value : returnValue;
+      });
+
+      return returnValue !== undefined ? returnValue : $elems;
+    }
+
+    function plainCall( $elems, options ) {
+      $elems.each( function( i, elem ) {
+        var instance = $.data( elem, namespace );
+        if ( instance ) {
+          // set options & init
+          instance.option( options );
+          instance._init();
+        } else {
+          // initialize new instance
+          instance = new PluginClass( elem, options );
+          $.data( elem, namespace, instance );
+        }
+      });
+    }
+
+    updateJQuery( $ );
+
   }
 
-  function plainCall( $elems, options ) {
-    $elems.each( function( i, elem ) {
-      var instance = $.data( elem, namespace );
-      if ( instance ) {
-        // set options & init
-        instance.option( options );
-        instance._init();
-      } else {
-        // initialize new instance
-        instance = new PluginClass( elem, options );
-        $.data( elem, namespace, instance );
-      }
-    });
+  // ----- updateJQuery ----- //
+
+  // set $.bridget for v1 backwards compatibility
+  function updateJQuery( $ ) {
+    if ( !$ || ( $ && $.bridget ) ) {
+      return;
+    }
+    $.bridget = jQueryBridget;
   }
 
-  updateJQuery( $ );
+  updateJQuery( jQuery || window.jQuery );
 
-}
+  // -----  ----- //
 
-// ----- updateJQuery ----- //
-
-// set $.bridget for v1 backwards compatibility
-function updateJQuery( $ ) {
-  if ( !$ || ( $ && $.bridget ) ) {
-    return;
-  }
-  $.bridget = jQueryBridget;
-}
-
-updateJQuery( jQuery || window.jQuery );
-
-// -----  ----- //
-
-return jQueryBridget;
+  return jQueryBridget;
 
 }));
 
@@ -179,90 +179,90 @@ return jQueryBridget;
 
 
 
-function EvEmitter() {}
+  function EvEmitter() {}
 
-var proto = EvEmitter.prototype;
+  var proto = EvEmitter.prototype;
 
-proto.on = function( eventName, listener ) {
-  if ( !eventName || !listener ) {
-    return;
-  }
-  // set events hash
-  var events = this._events = this._events || {};
-  // set listeners array
-  var listeners = events[ eventName ] = events[ eventName ] || [];
-  // only add once
-  if ( listeners.indexOf( listener ) == -1 ) {
-    listeners.push( listener );
-  }
-
-  return this;
-};
-
-proto.once = function( eventName, listener ) {
-  if ( !eventName || !listener ) {
-    return;
-  }
-  // add event
-  this.on( eventName, listener );
-  // set once flag
-  // set onceEvents hash
-  var onceEvents = this._onceEvents = this._onceEvents || {};
-  // set onceListeners object
-  var onceListeners = onceEvents[ eventName ] = onceEvents[ eventName ] || {};
-  // set flag
-  onceListeners[ listener ] = true;
-
-  return this;
-};
-
-proto.off = function( eventName, listener ) {
-  var listeners = this._events && this._events[ eventName ];
-  if ( !listeners || !listeners.length ) {
-    return;
-  }
-  var index = listeners.indexOf( listener );
-  if ( index != -1 ) {
-    listeners.splice( index, 1 );
-  }
-
-  return this;
-};
-
-proto.emitEvent = function( eventName, args ) {
-  var listeners = this._events && this._events[ eventName ];
-  if ( !listeners || !listeners.length ) {
-    return;
-  }
-  // copy over to avoid interference if .off() in listener
-  listeners = listeners.slice(0);
-  args = args || [];
-  // once stuff
-  var onceListeners = this._onceEvents && this._onceEvents[ eventName ];
-
-  for ( var i=0; i < listeners.length; i++ ) {
-    var listener = listeners[i]
-    var isOnce = onceListeners && onceListeners[ listener ];
-    if ( isOnce ) {
-      // remove listener
-      // remove before trigger to prevent recursion
-      this.off( eventName, listener );
-      // unset once flag
-      delete onceListeners[ listener ];
+  proto.on = function( eventName, listener ) {
+    if ( !eventName || !listener ) {
+      return;
     }
-    // trigger listener
-    listener.apply( this, args );
-  }
+    // set events hash
+    var events = this._events = this._events || {};
+    // set listeners array
+    var listeners = events[ eventName ] = events[ eventName ] || [];
+    // only add once
+    if ( listeners.indexOf( listener ) == -1 ) {
+      listeners.push( listener );
+    }
 
-  return this;
-};
+    return this;
+  };
 
-proto.allOff = function() {
-  delete this._events;
-  delete this._onceEvents;
-};
+  proto.once = function( eventName, listener ) {
+    if ( !eventName || !listener ) {
+      return;
+    }
+    // add event
+    this.on( eventName, listener );
+    // set once flag
+    // set onceEvents hash
+    var onceEvents = this._onceEvents = this._onceEvents || {};
+    // set onceListeners object
+    var onceListeners = onceEvents[ eventName ] = onceEvents[ eventName ] || {};
+    // set flag
+    onceListeners[ listener ] = true;
 
-return EvEmitter;
+    return this;
+  };
+
+  proto.off = function( eventName, listener ) {
+    var listeners = this._events && this._events[ eventName ];
+    if ( !listeners || !listeners.length ) {
+      return;
+    }
+    var index = listeners.indexOf( listener );
+    if ( index != -1 ) {
+      listeners.splice( index, 1 );
+    }
+
+    return this;
+  };
+
+  proto.emitEvent = function( eventName, args ) {
+    var listeners = this._events && this._events[ eventName ];
+    if ( !listeners || !listeners.length ) {
+      return;
+    }
+    // copy over to avoid interference if .off() in listener
+    listeners = listeners.slice(0);
+    args = args || [];
+    // once stuff
+    var onceListeners = this._onceEvents && this._onceEvents[ eventName ];
+
+    for ( var i=0; i < listeners.length; i++ ) {
+      var listener = listeners[i]
+      var isOnce = onceListeners && onceListeners[ listener ];
+      if ( isOnce ) {
+        // remove listener
+        // remove before trigger to prevent recursion
+        this.off( eventName, listener );
+        // unset once flag
+        delete onceListeners[ listener ];
+      }
+      // trigger listener
+      listener.apply( this, args );
+    }
+
+    return this;
+  };
+
+  proto.allOff = function() {
+    delete this._events;
+    delete this._onceEvents;
+  };
+
+  return EvEmitter;
 
 }));
 
@@ -289,188 +289,188 @@ return EvEmitter;
   }
 
 })( window, function factory() {
-'use strict';
+  'use strict';
 
-// -------------------------- helpers -------------------------- //
+  // -------------------------- helpers -------------------------- //
 
-// get a number from a string, not a percentage
-function getStyleSize( value ) {
-  var num = parseFloat( value );
-  // not a percent like '100%', and a number
-  var isValid = value.indexOf('%') == -1 && !isNaN( num );
-  return isValid && num;
-}
-
-function noop() {}
-
-var logError = typeof console == 'undefined' ? noop :
-  function( message ) {
-    console.error( message );
-  };
-
-// -------------------------- measurements -------------------------- //
-
-var measurements = [
-  'paddingLeft',
-  'paddingRight',
-  'paddingTop',
-  'paddingBottom',
-  'marginLeft',
-  'marginRight',
-  'marginTop',
-  'marginBottom',
-  'borderLeftWidth',
-  'borderRightWidth',
-  'borderTopWidth',
-  'borderBottomWidth'
-];
-
-var measurementsLength = measurements.length;
-
-function getZeroSize() {
-  var size = {
-    width: 0,
-    height: 0,
-    innerWidth: 0,
-    innerHeight: 0,
-    outerWidth: 0,
-    outerHeight: 0
-  };
-  for ( var i=0; i < measurementsLength; i++ ) {
-    var measurement = measurements[i];
-    size[ measurement ] = 0;
+  // get a number from a string, not a percentage
+  function getStyleSize( value ) {
+    var num = parseFloat( value );
+    // not a percent like '100%', and a number
+    var isValid = value.indexOf('%') == -1 && !isNaN( num );
+    return isValid && num;
   }
-  return size;
-}
 
-// -------------------------- getStyle -------------------------- //
+  function noop() {}
 
-/**
- * getStyle, get style of element, check for Firefox bug
- * https://bugzilla.mozilla.org/show_bug.cgi?id=548397
- */
-function getStyle( elem ) {
-  var style = getComputedStyle( elem );
-  if ( !style ) {
-    logError( 'Style returned ' + style +
-      '. Are you running this code in a hidden iframe on Firefox? ' +
-      'See https://bit.ly/getsizebug1' );
+  var logError = typeof console == 'undefined' ? noop :
+    function( message ) {
+      console.error( message );
+    };
+
+  // -------------------------- measurements -------------------------- //
+
+  var measurements = [
+    'paddingLeft',
+    'paddingRight',
+    'paddingTop',
+    'paddingBottom',
+    'marginLeft',
+    'marginRight',
+    'marginTop',
+    'marginBottom',
+    'borderLeftWidth',
+    'borderRightWidth',
+    'borderTopWidth',
+    'borderBottomWidth'
+  ];
+
+  var measurementsLength = measurements.length;
+
+  function getZeroSize() {
+    var size = {
+      width: 0,
+      height: 0,
+      innerWidth: 0,
+      innerHeight: 0,
+      outerWidth: 0,
+      outerHeight: 0
+    };
+    for ( var i=0; i < measurementsLength; i++ ) {
+      var measurement = measurements[i];
+      size[ measurement ] = 0;
+    }
+    return size;
   }
-  return style;
-}
 
-// -------------------------- setup -------------------------- //
-
-var isSetup = false;
-
-var isBoxSizeOuter;
-
-/**
- * setup
- * check isBoxSizerOuter
- * do on first getSize() rather than on page load for Firefox bug
- */
-function setup() {
-  // setup once
-  if ( isSetup ) {
-    return;
-  }
-  isSetup = true;
-
-  // -------------------------- box sizing -------------------------- //
+  // -------------------------- getStyle -------------------------- //
 
   /**
-   * Chrome & Safari measure the outer-width on style.width on border-box elems
-   * IE11 & Firefox<29 measures the inner-width
+   * getStyle, get style of element, check for Firefox bug
+   * https://bugzilla.mozilla.org/show_bug.cgi?id=548397
    */
-  var div = document.createElement('div');
-  div.style.width = '200px';
-  div.style.padding = '1px 2px 3px 4px';
-  div.style.borderStyle = 'solid';
-  div.style.borderWidth = '1px 2px 3px 4px';
-  div.style.boxSizing = 'border-box';
-
-  var body = document.body || document.documentElement;
-  body.appendChild( div );
-  var style = getStyle( div );
-  // round value for browser zoom. desandro/masonry#928
-  isBoxSizeOuter = Math.round( getStyleSize( style.width ) ) == 200;
-  getSize.isBoxSizeOuter = isBoxSizeOuter;
-
-  body.removeChild( div );
-}
-
-// -------------------------- getSize -------------------------- //
-
-function getSize( elem ) {
-  setup();
-
-  // use querySeletor if elem is string
-  if ( typeof elem == 'string' ) {
-    elem = document.querySelector( elem );
+  function getStyle( elem ) {
+    var style = getComputedStyle( elem );
+    if ( !style ) {
+      logError( 'Style returned ' + style +
+        '. Are you running this code in a hidden iframe on Firefox? ' +
+        'See https://bit.ly/getsizebug1' );
+    }
+    return style;
   }
 
-  // do not proceed on non-objects
-  if ( !elem || typeof elem != 'object' || !elem.nodeType ) {
-    return;
+  // -------------------------- setup -------------------------- //
+
+  var isSetup = false;
+
+  var isBoxSizeOuter;
+
+  /**
+   * setup
+   * check isBoxSizerOuter
+   * do on first getSize() rather than on page load for Firefox bug
+   */
+  function setup() {
+    // setup once
+    if ( isSetup ) {
+      return;
+    }
+    isSetup = true;
+
+    // -------------------------- box sizing -------------------------- //
+
+    /**
+     * Chrome & Safari measure the outer-width on style.width on border-box elems
+     * IE11 & Firefox<29 measures the inner-width
+     */
+    var div = document.createElement('div');
+    div.style.width = '200px';
+    div.style.padding = '1px 2px 3px 4px';
+    div.style.borderStyle = 'solid';
+    div.style.borderWidth = '1px 2px 3px 4px';
+    div.style.boxSizing = 'border-box';
+
+    var body = document.body || document.documentElement;
+    body.appendChild( div );
+    var style = getStyle( div );
+    // round value for browser zoom. desandro/masonry#928
+    isBoxSizeOuter = Math.round( getStyleSize( style.width ) ) == 200;
+    getSize.isBoxSizeOuter = isBoxSizeOuter;
+
+    body.removeChild( div );
   }
 
-  var style = getStyle( elem );
+  // -------------------------- getSize -------------------------- //
 
-  // if hidden, everything is 0
-  if ( style.display == 'none' ) {
-    return getZeroSize();
+  function getSize( elem ) {
+    setup();
+
+    // use querySeletor if elem is string
+    if ( typeof elem == 'string' ) {
+      elem = document.querySelector( elem );
+    }
+
+    // do not proceed on non-objects
+    if ( !elem || typeof elem != 'object' || !elem.nodeType ) {
+      return;
+    }
+
+    var style = getStyle( elem );
+
+    // if hidden, everything is 0
+    if ( style.display == 'none' ) {
+      return getZeroSize();
+    }
+
+    var size = {};
+    size.width = elem.offsetWidth;
+    size.height = elem.offsetHeight;
+
+    var isBorderBox = size.isBorderBox = style.boxSizing == 'border-box';
+
+    // get all measurements
+    for ( var i=0; i < measurementsLength; i++ ) {
+      var measurement = measurements[i];
+      var value = style[ measurement ];
+      var num = parseFloat( value );
+      // any 'auto', 'medium' value will be 0
+      size[ measurement ] = !isNaN( num ) ? num : 0;
+    }
+
+    var paddingWidth = size.paddingLeft + size.paddingRight;
+    var paddingHeight = size.paddingTop + size.paddingBottom;
+    var marginWidth = size.marginLeft + size.marginRight;
+    var marginHeight = size.marginTop + size.marginBottom;
+    var borderWidth = size.borderLeftWidth + size.borderRightWidth;
+    var borderHeight = size.borderTopWidth + size.borderBottomWidth;
+
+    var isBorderBoxSizeOuter = isBorderBox && isBoxSizeOuter;
+
+    // overwrite width and height if we can get it from style
+    var styleWidth = getStyleSize( style.width );
+    if ( styleWidth !== false ) {
+      size.width = styleWidth +
+        // add padding and border unless it's already including it
+        ( isBorderBoxSizeOuter ? 0 : paddingWidth + borderWidth );
+    }
+
+    var styleHeight = getStyleSize( style.height );
+    if ( styleHeight !== false ) {
+      size.height = styleHeight +
+        // add padding and border unless it's already including it
+        ( isBorderBoxSizeOuter ? 0 : paddingHeight + borderHeight );
+    }
+
+    size.innerWidth = size.width - ( paddingWidth + borderWidth );
+    size.innerHeight = size.height - ( paddingHeight + borderHeight );
+
+    size.outerWidth = size.width + marginWidth;
+    size.outerHeight = size.height + marginHeight;
+
+    return size;
   }
 
-  var size = {};
-  size.width = elem.offsetWidth;
-  size.height = elem.offsetHeight;
-
-  var isBorderBox = size.isBorderBox = style.boxSizing == 'border-box';
-
-  // get all measurements
-  for ( var i=0; i < measurementsLength; i++ ) {
-    var measurement = measurements[i];
-    var value = style[ measurement ];
-    var num = parseFloat( value );
-    // any 'auto', 'medium' value will be 0
-    size[ measurement ] = !isNaN( num ) ? num : 0;
-  }
-
-  var paddingWidth = size.paddingLeft + size.paddingRight;
-  var paddingHeight = size.paddingTop + size.paddingBottom;
-  var marginWidth = size.marginLeft + size.marginRight;
-  var marginHeight = size.marginTop + size.marginBottom;
-  var borderWidth = size.borderLeftWidth + size.borderRightWidth;
-  var borderHeight = size.borderTopWidth + size.borderBottomWidth;
-
-  var isBorderBoxSizeOuter = isBorderBox && isBoxSizeOuter;
-
-  // overwrite width and height if we can get it from style
-  var styleWidth = getStyleSize( style.width );
-  if ( styleWidth !== false ) {
-    size.width = styleWidth +
-      // add padding and border unless it's already including it
-      ( isBorderBoxSizeOuter ? 0 : paddingWidth + borderWidth );
-  }
-
-  var styleHeight = getStyleSize( style.height );
-  if ( styleHeight !== false ) {
-    size.height = styleHeight +
-      // add padding and border unless it's already including it
-      ( isBorderBoxSizeOuter ? 0 : paddingHeight + borderHeight );
-  }
-
-  size.innerWidth = size.width - ( paddingWidth + borderWidth );
-  size.innerHeight = size.height - ( paddingHeight + borderHeight );
-
-  size.outerWidth = size.width + marginWidth;
-  size.outerHeight = size.height + marginHeight;
-
-  return size;
-}
-
-return getSize;
+  return getSize;
 
 });
 
@@ -564,209 +564,209 @@ return getSize;
 
 
 
-var utils = {};
+  var utils = {};
 
-// ----- extend ----- //
+  // ----- extend ----- //
 
-// extends objects
-utils.extend = function( a, b ) {
-  for ( var prop in b ) {
-    a[ prop ] = b[ prop ];
-  }
-  return a;
-};
-
-// ----- modulo ----- //
-
-utils.modulo = function( num, div ) {
-  return ( ( num % div ) + div ) % div;
-};
-
-// ----- makeArray ----- //
-
-var arraySlice = Array.prototype.slice;
-
-// turn element or nodeList into an array
-utils.makeArray = function( obj ) {
-  if ( Array.isArray( obj ) ) {
-    // use object if already an array
-    return obj;
-  }
-  // return empty array if undefined or null. #6
-  if ( obj === null || obj === undefined ) {
-    return [];
-  }
-
-  var isArrayLike = typeof obj == 'object' && typeof obj.length == 'number';
-  if ( isArrayLike ) {
-    // convert nodeList to array
-    return arraySlice.call( obj );
-  }
-
-  // array of single index
-  return [ obj ];
-};
-
-// ----- removeFrom ----- //
-
-utils.removeFrom = function( ary, obj ) {
-  var index = ary.indexOf( obj );
-  if ( index != -1 ) {
-    ary.splice( index, 1 );
-  }
-};
-
-// ----- getParent ----- //
-
-utils.getParent = function( elem, selector ) {
-  while ( elem.parentNode && elem != document.body ) {
-    elem = elem.parentNode;
-    if ( matchesSelector( elem, selector ) ) {
-      return elem;
+  // extends objects
+  utils.extend = function( a, b ) {
+    for ( var prop in b ) {
+      a[ prop ] = b[ prop ];
     }
-  }
-};
-
-// ----- getQueryElement ----- //
-
-// use element as selector string
-utils.getQueryElement = function( elem ) {
-  if ( typeof elem == 'string' ) {
-    return document.querySelector( elem );
-  }
-  return elem;
-};
-
-// ----- handleEvent ----- //
-
-// enable .ontype to trigger from .addEventListener( elem, 'type' )
-utils.handleEvent = function( event ) {
-  var method = 'on' + event.type;
-  if ( this[ method ] ) {
-    this[ method ]( event );
-  }
-};
-
-// ----- filterFindElements ----- //
-
-utils.filterFindElements = function( elems, selector ) {
-  // make array of elems
-  elems = utils.makeArray( elems );
-  var ffElems = [];
-
-  elems.forEach( function( elem ) {
-    // check that elem is an actual element
-    if ( !( elem instanceof HTMLElement ) ) {
-      return;
-    }
-    // add elem if no selector
-    if ( !selector ) {
-      ffElems.push( elem );
-      return;
-    }
-    // filter & find items if we have a selector
-    // filter
-    if ( matchesSelector( elem, selector ) ) {
-      ffElems.push( elem );
-    }
-    // find children
-    var childElems = elem.querySelectorAll( selector );
-    // concat childElems to filterFound array
-    for ( var i=0; i < childElems.length; i++ ) {
-      ffElems.push( childElems[i] );
-    }
-  });
-
-  return ffElems;
-};
-
-// ----- debounceMethod ----- //
-
-utils.debounceMethod = function( _class, methodName, threshold ) {
-  threshold = threshold || 100;
-  // original method
-  var method = _class.prototype[ methodName ];
-  var timeoutName = methodName + 'Timeout';
-
-  _class.prototype[ methodName ] = function() {
-    var timeout = this[ timeoutName ];
-    clearTimeout( timeout );
-
-    var args = arguments;
-    var _this = this;
-    this[ timeoutName ] = setTimeout( function() {
-      method.apply( _this, args );
-      delete _this[ timeoutName ];
-    }, threshold );
+    return a;
   };
-};
 
-// ----- docReady ----- //
+  // ----- modulo ----- //
 
-utils.docReady = function( callback ) {
-  var readyState = document.readyState;
-  if ( readyState == 'complete' || readyState == 'interactive' ) {
-    // do async to allow for other scripts to run. metafizzy/flickity#441
-    setTimeout( callback );
-  } else {
-    document.addEventListener( 'DOMContentLoaded', callback );
-  }
-};
+  utils.modulo = function( num, div ) {
+    return ( ( num % div ) + div ) % div;
+  };
 
-// ----- htmlInit ----- //
+  // ----- makeArray ----- //
 
-// http://jamesroberts.name/blog/2010/02/22/string-functions-for-javascript-trim-to-camel-case-to-dashed-and-to-underscore/
-utils.toDashed = function( str ) {
-  return str.replace( /(.)([A-Z])/g, function( match, $1, $2 ) {
-    return $1 + '-' + $2;
-  }).toLowerCase();
-};
+  var arraySlice = Array.prototype.slice;
 
-var console = window.console;
-/**
- * allow user to initialize classes via [data-namespace] or .js-namespace class
- * htmlInit( Widget, 'widgetName' )
- * options are parsed from data-namespace-options
- */
-utils.htmlInit = function( WidgetClass, namespace ) {
-  utils.docReady( function() {
-    var dashedNamespace = utils.toDashed( namespace );
-    var dataAttr = 'data-' + dashedNamespace;
-    var dataAttrElems = document.querySelectorAll( '[' + dataAttr + ']' );
-    var jsDashElems = document.querySelectorAll( '.js-' + dashedNamespace );
-    var elems = utils.makeArray( dataAttrElems )
-      .concat( utils.makeArray( jsDashElems ) );
-    var dataOptionsAttr = dataAttr + '-options';
-    var jQuery = window.jQuery;
+  // turn element or nodeList into an array
+  utils.makeArray = function( obj ) {
+    if ( Array.isArray( obj ) ) {
+      // use object if already an array
+      return obj;
+    }
+    // return empty array if undefined or null. #6
+    if ( obj === null || obj === undefined ) {
+      return [];
+    }
+
+    var isArrayLike = typeof obj == 'object' && typeof obj.length == 'number';
+    if ( isArrayLike ) {
+      // convert nodeList to array
+      return arraySlice.call( obj );
+    }
+
+    // array of single index
+    return [ obj ];
+  };
+
+  // ----- removeFrom ----- //
+
+  utils.removeFrom = function( ary, obj ) {
+    var index = ary.indexOf( obj );
+    if ( index != -1 ) {
+      ary.splice( index, 1 );
+    }
+  };
+
+  // ----- getParent ----- //
+
+  utils.getParent = function( elem, selector ) {
+    while ( elem.parentNode && elem != document.body ) {
+      elem = elem.parentNode;
+      if ( matchesSelector( elem, selector ) ) {
+        return elem;
+      }
+    }
+  };
+
+  // ----- getQueryElement ----- //
+
+  // use element as selector string
+  utils.getQueryElement = function( elem ) {
+    if ( typeof elem == 'string' ) {
+      return document.querySelector( elem );
+    }
+    return elem;
+  };
+
+  // ----- handleEvent ----- //
+
+  // enable .ontype to trigger from .addEventListener( elem, 'type' )
+  utils.handleEvent = function( event ) {
+    var method = 'on' + event.type;
+    if ( this[ method ] ) {
+      this[ method ]( event );
+    }
+  };
+
+  // ----- filterFindElements ----- //
+
+  utils.filterFindElements = function( elems, selector ) {
+    // make array of elems
+    elems = utils.makeArray( elems );
+    var ffElems = [];
 
     elems.forEach( function( elem ) {
-      var attr = elem.getAttribute( dataAttr ) ||
-        elem.getAttribute( dataOptionsAttr );
-      var options;
-      try {
-        options = attr && JSON.parse( attr );
-      } catch ( error ) {
-        // log error, do not initialize
-        if ( console ) {
-          console.error( 'Error parsing ' + dataAttr + ' on ' + elem.className +
-          ': ' + error );
-        }
+      // check that elem is an actual element
+      if ( !( elem instanceof HTMLElement ) ) {
         return;
       }
-      // initialize
-      var instance = new WidgetClass( elem, options );
-      // make available via $().data('namespace')
-      if ( jQuery ) {
-        jQuery.data( elem, namespace, instance );
+      // add elem if no selector
+      if ( !selector ) {
+        ffElems.push( elem );
+        return;
+      }
+      // filter & find items if we have a selector
+      // filter
+      if ( matchesSelector( elem, selector ) ) {
+        ffElems.push( elem );
+      }
+      // find children
+      var childElems = elem.querySelectorAll( selector );
+      // concat childElems to filterFound array
+      for ( var i=0; i < childElems.length; i++ ) {
+        ffElems.push( childElems[i] );
       }
     });
 
-  });
-};
+    return ffElems;
+  };
 
-// -----  ----- //
+  // ----- debounceMethod ----- //
 
-return utils;
+  utils.debounceMethod = function( _class, methodName, threshold ) {
+    threshold = threshold || 100;
+    // original method
+    var method = _class.prototype[ methodName ];
+    var timeoutName = methodName + 'Timeout';
+
+    _class.prototype[ methodName ] = function() {
+      var timeout = this[ timeoutName ];
+      clearTimeout( timeout );
+
+      var args = arguments;
+      var _this = this;
+      this[ timeoutName ] = setTimeout( function() {
+        method.apply( _this, args );
+        delete _this[ timeoutName ];
+      }, threshold );
+    };
+  };
+
+  // ----- docReady ----- //
+
+  utils.docReady = function( callback ) {
+    var readyState = document.readyState;
+    if ( readyState == 'complete' || readyState == 'interactive' ) {
+      // do async to allow for other scripts to run. metafizzy/flickity#441
+      setTimeout( callback );
+    } else {
+      document.addEventListener( 'DOMContentLoaded', callback );
+    }
+  };
+
+  // ----- htmlInit ----- //
+
+  // http://jamesroberts.name/blog/2010/02/22/string-functions-for-javascript-trim-to-camel-case-to-dashed-and-to-underscore/
+  utils.toDashed = function( str ) {
+    return str.replace( /(.)([A-Z])/g, function( match, $1, $2 ) {
+      return $1 + '-' + $2;
+    }).toLowerCase();
+  };
+
+  var console = window.console;
+  /**
+   * allow user to initialize classes via [data-namespace] or .js-namespace class
+   * htmlInit( Widget, 'widgetName' )
+   * options are parsed from data-namespace-options
+   */
+  utils.htmlInit = function( WidgetClass, namespace ) {
+    utils.docReady( function() {
+      var dashedNamespace = utils.toDashed( namespace );
+      var dataAttr = 'data-' + dashedNamespace;
+      var dataAttrElems = document.querySelectorAll( '[' + dataAttr + ']' );
+      var jsDashElems = document.querySelectorAll( '.js-' + dashedNamespace );
+      var elems = utils.makeArray( dataAttrElems )
+        .concat( utils.makeArray( jsDashElems ) );
+      var dataOptionsAttr = dataAttr + '-options';
+      var jQuery = window.jQuery;
+
+      elems.forEach( function( elem ) {
+        var attr = elem.getAttribute( dataAttr ) ||
+          elem.getAttribute( dataOptionsAttr );
+        var options;
+        try {
+          options = attr && JSON.parse( attr );
+        } catch ( error ) {
+          // log error, do not initialize
+          if ( console ) {
+            console.error( 'Error parsing ' + dataAttr + ' on ' + elem.className +
+            ': ' + error );
+          }
+          return;
+        }
+        // initialize
+        var instance = new WidgetClass( elem, options );
+        // make available via $().data('namespace')
+        if ( jQuery ) {
+          jQuery.data( elem, namespace, instance );
+        }
+      });
+
+    });
+  };
+
+  // -----  ----- //
+
+  return utils;
 
 }));
 
@@ -783,15 +783,15 @@ return utils;
   } else if ( typeof module == 'object' && module.exports ) {
     // CommonJS
     module.exports = factory(
-        window,
-        require('get-size')
+      window,
+      require('get-size')
     );
   } else {
     // browser global
     window.Flickity = window.Flickity || {};
     window.Flickity.Cell = factory(
-        window,
-        window.getSize
+      window,
+      window.getSize
     );
   }
 
@@ -799,85 +799,85 @@ return utils;
 
 
 
-function Cell( elem, parent ) {
-  this.element = elem;
-  this.parent = parent;
+  function Cell( elem, parent ) {
+    this.element = elem;
+    this.parent = parent;
 
-  this.create();
-}
+    this.create();
+  }
 
-var proto = Cell.prototype;
+  var proto = Cell.prototype;
 
-proto.create = function() {
-  this.element.style.position = 'absolute';
-  this.element.setAttribute( 'aria-hidden', 'true' );
-  this.x = 0;
-  this.shift = 0;
-  this.element.style[ this.parent.originSide ] = 0;
-};
+  proto.create = function() {
+    this.element.style.position = 'absolute';
+    this.element.setAttribute( 'aria-hidden', 'true' );
+    this.x = 0;
+    this.shift = 0;
+    this.element.style[ this.parent.originSide ] = 0;
+  };
 
-proto.destroy = function() {
-  // reset style
-  this.unselect();
-  this.element.style.position = '';
-  var side = this.parent.originSide;
-  this.element.style[ side ] = '';
-  this.element.style.transform = '';
-  this.element.removeAttribute('aria-hidden');
-};
+  proto.destroy = function() {
+    // reset style
+    this.unselect();
+    this.element.style.position = '';
+    var side = this.parent.originSide;
+    this.element.style[ side ] = '';
+    this.element.style.transform = '';
+    this.element.removeAttribute('aria-hidden');
+  };
 
-proto.getSize = function() {
-  this.size = getSize( this.element );
-};
+  proto.getSize = function() {
+    this.size = getSize( this.element );
+  };
 
-proto.setPosition = function( x ) {
-  this.x = x;
-  this.updateTarget();
-  this.renderPosition( x );
-};
+  proto.setPosition = function( x ) {
+    this.x = x;
+    this.updateTarget();
+    this.renderPosition( x );
+  };
 
-// setDefaultTarget v1 method, backwards compatibility, remove in v3
-proto.updateTarget = proto.setDefaultTarget = function() {
-  var marginProperty = this.parent.originSide == 'left' ? 'marginLeft' : 'marginRight';
-  this.target = this.x + this.size[ marginProperty ] +
-    this.size.width * this.parent.cellAlign;
-};
+  // setDefaultTarget v1 method, backwards compatibility, remove in v3
+  proto.updateTarget = proto.setDefaultTarget = function() {
+    var marginProperty = this.parent.originSide == 'left' ? 'marginLeft' : 'marginRight';
+    this.target = this.x + this.size[ marginProperty ] +
+      this.size.width * this.parent.cellAlign;
+  };
 
-proto.renderPosition = function( x ) {
-  // render position of cell with in slider
-  var sideOffset = this.parent.originSide === 'left' ? 1 : -1;
+  proto.renderPosition = function( x ) {
+    // render position of cell with in slider
+    var sideOffset = this.parent.originSide === 'left' ? 1 : -1;
 
-  var adjustedX = this.parent.options.percentPosition ?
-    x * sideOffset * ( this.parent.size.innerWidth / this.size.width ) :
-    x * sideOffset;
+    var adjustedX = this.parent.options.percentPosition ?
+      x * sideOffset * ( this.parent.size.innerWidth / this.size.width ) :
+      x * sideOffset;
 
-  this.element.style.transform = 'translateX(' +
-    this.parent.getPositionValue( adjustedX ) + ')';
-};
+    this.element.style.transform = 'translateX(' +
+      this.parent.getPositionValue( adjustedX ) + ')';
+  };
 
-proto.select = function() {
-  this.element.classList.add('is-selected');
-  this.element.removeAttribute('aria-hidden');
-};
+  proto.select = function() {
+    this.element.classList.add('is-selected');
+    this.element.removeAttribute('aria-hidden');
+  };
 
-proto.unselect = function() {
-  this.element.classList.remove('is-selected');
-  this.element.setAttribute( 'aria-hidden', 'true' );
-};
+  proto.unselect = function() {
+    this.element.classList.remove('is-selected');
+    this.element.setAttribute( 'aria-hidden', 'true' );
+  };
 
-/**
- * @param {Integer} shift - 0, 1, or -1
- */
-proto.wrapShift = function( shift ) {
-  this.shift = shift;
-  this.renderPosition( this.x + this.parent.slideableWidth * shift );
-};
+  /**
+   * @param {Integer} shift - 0, 1, or -1
+   */
+  proto.wrapShift = function( shift ) {
+    this.shift = shift;
+    this.renderPosition( this.x + this.parent.slideableWidth * shift );
+  };
 
-proto.remove = function() {
-  this.element.parentNode.removeChild( this.element );
-};
+  proto.remove = function() {
+    this.element.parentNode.removeChild( this.element );
+  };
 
-return Cell;
+  return Cell;
 
 } ) );
 

@@ -37,8 +37,6 @@ class Booking{
       ],
     };
 
-    console.log('params: ', params);
-
     const urls = {
       booking:       settings.db.url + '/' + settings.db.bookings + '?' + params.bookings.join('&'),
       eventsCurrent: settings.db.url + '/' + settings.db.events + '?' + params.eventsCurrent.join('&'),
@@ -71,7 +69,7 @@ class Booking{
     thisBooking.booked = {};
 
     for(let item of booking){
-      thisBooking.makeBooked(item.date, item.hour, item.duration, item.table);
+      thisBooking.makeBooked(item.date, item.hour, item.hours, item.table);
     }
 
     const minDate = thisBooking.datePicker.minDate;
@@ -180,24 +178,22 @@ class Booking{
   initTables(event){
     const thisBooking = this;
     const table = event.target;
-    const tableNumer = table.getAttribute(settings.booking.tableIdAttribute);
+    const tableNumber = table.getAttribute(settings.booking.tableIdAttribute);
 
     if(table.classList.contains(classNames.booking.table) && table.classList.contains(classNames.booking.tableBooked)){
       alert('this table is already booked !!!');
       return;
 
+    }
+    if(table.classList.contains(classNames.booking.tableSelected)){
+      table.classList.remove(classNames.booking.tableSelected);
+      thisBooking.updateDOM();
+
     } else {
-
-      if(table.classList.contains(classNames.booking.tableSelected)){
-        table.classList.remove(classNames.booking.tableSelected);
-        thisBooking.updateDOM();
-
-      } else {
-        thisBooking.updateDOM();
-        table.classList.add(classNames.booking.tableSelected);
-        thisBooking.selectedTable = parseInt(tableNumer);
-        console.log('selected table:', thisBooking.selectedTable);
-      }
+      thisBooking.updateDOM();
+      table.classList.add(classNames.booking.tableSelected);
+      thisBooking.selectedTable = parseInt(tableNumber);
+      console.log('selected table:', thisBooking.selectedTable);
     }
   }
 
@@ -214,8 +210,8 @@ class Booking{
       starters: [],
       phone: thisBooking.dom.phone.value,
       adress: thisBooking.dom.address.value,
-      ppl: thisBooking.dom.hours.value,
-      hours: thisBooking.dom.ppl.value,
+      ppl: thisBooking.dom.ppl.value,
+      hours: thisBooking.hoursAmountWidget.value,
     };
 
     for(let starter of thisBooking.dom.starters) {
@@ -240,6 +236,7 @@ class Booking{
         alert('Thank you for reserving this table !!');
         thisBooking.makeBooked(parsedResponse.date, parsedResponse.hour, parsedResponse.hours, parsedResponse.table);
         thisBooking.updateDOM();
+        console.log(thisBooking.booked);
       });
   }
 
