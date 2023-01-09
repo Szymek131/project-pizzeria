@@ -1,5 +1,5 @@
 import {settings, select, classNames, templates} from './settings.js';
-import Product from './components/product.js';
+import Product from './components/Product.js';
 import Cart from './components/Cart.js';
 import Booking from './components/Booking.js';
 import Home from './components/Home.js';
@@ -63,7 +63,7 @@ const app = {
     
     thisApp.dom.homeWrapper.addEventListener('click', function(event){
       event.preventDefault();
-      let pageId = event.target.getAttribute('link-id');
+      const pageId = event.target.getAttribute('link-id');
       if(pageId) {
         thisApp.activatePage(pageId);
       }
@@ -118,9 +118,8 @@ const app = {
   initHome: function(){
     const thisApp = this;
 
-    console.log('thisApp: ', thisApp);
-    thisApp.homePage = document.querySelector(select.containerOf.homePage);
-    thisApp.homeP = new Home(thisApp.homePage);
+    thisApp.homeElement = document.querySelector(select.containerOf.homePage);
+    thisApp.homePage = new Home(thisApp.homePage);
   },
     
   init: function(){
